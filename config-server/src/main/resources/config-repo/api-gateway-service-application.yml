@@ -1,0 +1,71 @@
+server:
+  port: 80 #localhost <=> 80
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          predicates:
+            - Path=/auth/**
+          uri: http://localhost:9090 #localhost:8090/api/v1/auth/find-all
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/auth-service
+# user servisin apigateway ile bağlantısı
+        - id: user-service
+          predicates:
+            - Path=/user/**
+          uri: http://localhost:9091
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/user-service
+# product servisin apigateway ile bağlantısı
+        - id: product-service
+          predicates:
+            - Path=/product/**
+          uri: http://localhost:9092
+        - id: product-service-brand
+          predicates:
+            - Path=/brand/**
+          uri: http://localhost:9092
+        - id: product-service-category
+          predicates:
+            - Path=/category/**
+          uri: http://localhost:9092
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/product-service
+
+# Sale servisin apigateway ile bağlantı konfigürasyonu
+        - id: sale-service
+          predicates:
+            - Path=/balance/**
+          uri: http://localhost:9093
+        - id: sale-service-basket
+          predicates:
+            - Path=/basket/**
+          uri: http://localhost:9093
+        - id: sale-service-order
+          predicates:
+            - Path=/order/**
+          uri: http://localhost:9093
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/sale-service
+
+      default-filters:
+        - RewritePath= /(?<segment>.*),/api/v1/$\{segment}
+

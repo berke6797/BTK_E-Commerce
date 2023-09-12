@@ -1,0 +1,18 @@
+server:
+  port: 9091
+
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: e-commerce
+      username: Java
+      password: root
+      auto-index-creation: true
+
+logging:
+  file:
+    name: user-service/src/main/resources/logs/user-app.log  #D:\Btk-Ecommerce\product-service\logs\user-app.log  #loglamanın yapılacağı path yolu
+  level:
+    com.btk.service: DEBUG #loglama seviyesi
